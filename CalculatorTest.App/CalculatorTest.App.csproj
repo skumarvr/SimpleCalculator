@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CalculatorTest.EFDataAccess\CalculatorTest.EFDataAccess.csproj" />
+    <ProjectReference Include="..\CalculatorTest.DataAccess\CalculatorTest.DataAccess.csproj" />
     <ProjectReference Include="..\CalculatorTest.Lib\CalculatorTest.Lib.csproj" />
   </ItemGroup>
 

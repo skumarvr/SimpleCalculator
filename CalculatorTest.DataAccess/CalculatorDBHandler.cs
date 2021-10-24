@@ -1,19 +1,26 @@
-﻿using CalculatorTest.ADONETDataAccess.Models;
-using System;
+﻿using System;
 using System.Configuration;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
-namespace CalculatorTest.ADONETDataAccess
+namespace CalculatorTest.DataAccess.Models
 {
-    public class CalculatorDBContext : IDisposable
+    public class CalculatorDBHandler : IDisposable
     {
-        private bool _disposedValue;
+        private string _connectionStr = null;
 
-        private string _connectionStr = ConfigurationManager.ConnectionStrings["CalculatorDatabase"].ConnectionString;
+        public CalculatorDBHandler(string connectionStr)
+        {
+            _connectionStr = connectionStr;
+        }
 
         public void AddDiagnostic(Diagnostic diagnostic)
         {
+            if(string.IsNullOrEmpty(_connectionStr.Trim())) 
+            {
+                throw new ArgumentNullException("Connection String");
+            }
+
             using (SqlConnection con = new SqlConnection(_connectionStr))
             {
                 SqlCommand cmd = new SqlCommand("spAddDiagnostic", con);

@@ -1,24 +1,32 @@
-﻿using CalculatorTest.Lib;
+﻿using CalculatorTest.DataAccess.Models;
+using CalculatorTest.Lib;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Configuration;
 using System.Threading.Tasks;
 
 namespace CalculatorTest.App
 {
     class Program
     {
+        public static object Configuration { get; private set; }
+
         static void Main(string[] args)
         {
             Console.WriteLine("Simple Calculator...");
 
-            var collection = new ServiceCollection();
-            //collection.AddSingleton<IDiagnostics, DummyDiagnostics>();
-            //collection.AddSingleton<IDiagnostics, ConsoleDiagnostics>();
-            //collection.AddSingleton<IDiagnostics, DatabaseEFDiagnostics>();
-            collection.AddSingleton<IDiagnostics, DatabaseSPDiagnostics>();
-            collection.AddScoped<ISimpleCalculator, SimpleCalculator>();
-
-            IServiceProvider serviceProvider = collection.BuildServiceProvider();
+            var connStr = ConfigurationManager.ConnectionStrings["CalculatorDatabase"].ConnectionString;
+            var services = new ServiceCollection();
+            services.AddDbContext<CalculatorDBContext>(options => options.UseSqlServer(connStr));
+            services.AddScoped<CalculatorDBHandler>(x => new CalculatorDBHandler(connStr));
+            //services.AddSingleton<IDiagnostics, DummyDiagnostics>();
+            //services.AddSingleton<IDiagnostics, ConsoleDiagnostics>();
+            //services.AddScoped<IDiagnostics, DatabaseEFDiagnostics>();
+            services.AddScoped<IDiagnostics>(x => new DatabaseSPDiagnostics(x.GetService<CalculatorDBHandler>()));
+            services.AddScoped<ISimpleCalculator, SimpleCalculator>();
+            
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
             var simpleCalc = serviceProvider.GetService<ISimpleCalculator>();
 
             simpleCalc.Add(10, 10);

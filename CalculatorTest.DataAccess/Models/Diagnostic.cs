@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 #nullable disable
 
-namespace CalculatorTest.EFDataAccess.Models
+namespace CalculatorTest.DataAccess.Models
 {
     public partial class Diagnostic
     {

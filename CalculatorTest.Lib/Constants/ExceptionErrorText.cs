@@ -8,5 +8,6 @@ namespace CalculatorTest.Lib.Constants
     {
         public static readonly string DivideByZeroException = "Divide by zero";
         public static readonly string OverflowException = "{0} operation operation resulted in an overflow.";
+        public static readonly string EmptyConnectionString = "Connection string is empty";
     }
 }

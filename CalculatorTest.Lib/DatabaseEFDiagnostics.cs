@@ -1,26 +1,27 @@
-﻿using CalculatorTest.EFDataAccess.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CalculatorTest.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CalculatorTest.Lib
 {
     public class DatabaseEFDiagnostics : IDiagnostics
     {
+        private CalculatorDBContext _dbContext;
+
+        public DatabaseEFDiagnostics(CalculatorDBContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         public void LogResult(string op, int result)
         {
-            using (var context = new CalculatorDBContext())
+            var dgn = new Diagnostic()
             {
+                Operation = op,
+                Result = result
+            };
 
-                var dgn = new Diagnostic()
-                {
-                    Operation = op,
-                    Result = result
-                };
-
-                context.Diagnostics.Add(dgn);
-                context.SaveChanges();
-            }
+            _dbContext.Diagnostics.Add(dgn);
+            _dbContext.SaveChanges();
         }
     }
 }
