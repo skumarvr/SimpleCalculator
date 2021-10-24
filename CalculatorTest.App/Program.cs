@@ -9,11 +9,13 @@ namespace CalculatorTest.App
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Simpe Calculator...");
+            Console.WriteLine("Simple Calculator...");
 
             var collection = new ServiceCollection();
-            // collection.AddSingleton<IDiagnostics, DummyDiagnostics>();
-            collection.AddSingleton<IDiagnostics, ConsoleDiagnostics>();
+            //collection.AddSingleton<IDiagnostics, DummyDiagnostics>();
+            //collection.AddSingleton<IDiagnostics, ConsoleDiagnostics>();
+            collection.AddSingleton<IDiagnostics, DatabaseEFDiagnostics>();
+            //collection.AddSingleton<IDiagnostics, DatabaseSPDiagnostics>();
             collection.AddScoped<ISimpleCalculator, SimpleCalculator>();
 
             IServiceProvider serviceProvider = collection.BuildServiceProvider();
