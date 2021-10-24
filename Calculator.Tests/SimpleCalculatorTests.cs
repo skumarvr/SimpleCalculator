@@ -1,12 +1,38 @@
 using CalculatorTest.Lib;
 using CalculatorTest.Lib.Constants;
+using Moq;
 using NUnit.Framework;
 using System;
+using System.Linq.Expressions;
 
 namespace Calculator.Tests
 {
     public class SimpleCalculatorTests
     {
+        Mock<IDiagnostics> diagnosticsMock = new Mock<IDiagnostics>();
+        SimpleCalculator simpleCalc = null;
+        string logResultFnOpParam = "";
+        int logResultFnResultParam = 0;
+        Expression<Action<IDiagnostics>> logResultFnExpr = x => x.LogResult(It.IsAny<string>(), It.IsAny<int>());
+
+        [SetUp]
+        public void Setup()
+        {   
+            diagnosticsMock.Setup(logResultFnExpr)
+                            .Callback((string op, int result) => {
+                                logResultFnOpParam = op;
+                                logResultFnResultParam = result;
+                            });
+            simpleCalc = new SimpleCalculator(diagnosticsMock.Object);
+        }
+
+        private void Verify_Diagnostics_LogResult_Fn_Invocation(string expectedOperation, int expectedResult)
+        {
+            Assert.AreEqual(expectedOperation, logResultFnOpParam);
+            Assert.AreEqual(expectedResult, logResultFnResultParam);
+            diagnosticsMock.Verify(logResultFnExpr, Times.Once);
+        }
+
         [Test]
         [TestCase(10, 10, 20)]
         [TestCase(0, 0, 0)]
@@ -21,8 +47,9 @@ namespace Calculator.Tests
         [TestCase(-15, -10, -25)]
         public void Verify_Add_Operation_With_Valid_Inputs(int start, int amount, int expectedResult)
         {
-            var sc = new SimpleCalculator();
-            Assert.AreEqual(expectedResult, sc.Add(start, amount));
+            diagnosticsMock.Invocations.Clear();
+            Assert.AreEqual(expectedResult, simpleCalc.Add(start, amount));
+            Verify_Diagnostics_LogResult_Fn_Invocation(CalculatorOperationText.Add, expectedResult);
         }
 
         [Test]
@@ -39,8 +66,9 @@ namespace Calculator.Tests
         [TestCase(-15, -10, -5)]
         public void Verify_Subtract_Operation_With_Valid_Inputs(int start, int amount, int expectedResult)
         {
-            var sc = new SimpleCalculator();
-            Assert.AreEqual(expectedResult, sc.Subtract(start, amount));
+            diagnosticsMock.Invocations.Clear();
+            Assert.AreEqual(expectedResult, simpleCalc.Subtract(start, amount));
+            Verify_Diagnostics_LogResult_Fn_Invocation(CalculatorOperationText.Subtract, expectedResult);
         }
 
         [Test]
@@ -53,8 +81,9 @@ namespace Calculator.Tests
         [TestCase(-10, -10, 100)]
         public void Verify_Multiply_Operation_With_Valid_Inputs(int start, int by, int expectedResult)
         {
-            var sc = new SimpleCalculator();
-            Assert.AreEqual(expectedResult, sc.Multiply(start, by));
+            diagnosticsMock.Invocations.Clear();
+            Assert.AreEqual(expectedResult, simpleCalc.Multiply(start, by));
+            Verify_Diagnostics_LogResult_Fn_Invocation(CalculatorOperationText.Multiply, expectedResult);
         }
 
         [Test]
@@ -72,8 +101,9 @@ namespace Calculator.Tests
         [TestCase(-5, 10, 0)]  // -0.25
         public void Verify_Division_Operation_With_Valid_Inputs(int start, int by, int expectedResult)
         {
-            var sc = new SimpleCalculator();
-            Assert.AreEqual(expectedResult, sc.Divide(start, by));
+            diagnosticsMock.Invocations.Clear();
+            Assert.AreEqual(expectedResult, simpleCalc.Divide(start, by));
+            Verify_Diagnostics_LogResult_Fn_Invocation(CalculatorOperationText.Divide, expectedResult);
         }
 
         [Test]
@@ -81,9 +111,7 @@ namespace Calculator.Tests
         [TestCase(10, 0)]
         public void Verify_Division_Operation_Divide_By_Zero(int start, int by)
         {
-            var sc = new SimpleCalculator();
-            var ex = Assert.Throws<CalculatorException>(() => sc.Divide(start, by));
-
+            var ex = Assert.Throws<CalculatorException>(() => simpleCalc.Divide(start, by));
             Assert.That(ex.Message == ExceptionErrorText.DivideByZeroException);
         }
 
@@ -92,34 +120,33 @@ namespace Calculator.Tests
         public void Verify_Calculator_Operation_Overflow_Exception(int start, int by, string op)
         {
             var exMsg = string.Format(ExceptionErrorText.OverflowException, op);
-            var sc = new SimpleCalculator();
 
             if (op == CalculatorOperationText.Add)
             {
-                var ex = Assert.Throws<CalculatorException>(() => sc.Add(start, by));
+                var ex = Assert.Throws<CalculatorException>(() => simpleCalc.Add(start, by));
                 Assert.That(ex.Message == exMsg);
             }
 
             if (op == CalculatorOperationText.Subtract)
             {
-                var ex = Assert.Throws<CalculatorException>(() => sc.Subtract(start, by));
+                var ex = Assert.Throws<CalculatorException>(() => simpleCalc.Subtract(start, by));
                 Assert.That(ex.Message == exMsg);
             }
 
             if (op == CalculatorOperationText.Multiply)
             {
-                var ex = Assert.Throws<CalculatorException>(() => sc.Multiply(start, by));
+                var ex = Assert.Throws<CalculatorException>(() => simpleCalc.Multiply(start, by));
                 Assert.That(ex.Message == exMsg);
             }
 
             if (op == CalculatorOperationText.Divide)
             {
-                var ex = Assert.Throws<CalculatorException>(() => sc.Divide(start, by));
+                var ex = Assert.Throws<CalculatorException>(() => simpleCalc.Divide(start, by));
                 Assert.That(ex.Message == exMsg);
             }            
         }
 
-        static object[] OverflowExceptionUseCases =
+        private static object[] OverflowExceptionUseCases =
         {
             new object[] { int.MaxValue, 1, CalculatorOperationText.Add },
             new object[] { int.MinValue, -1, CalculatorOperationText.Add },

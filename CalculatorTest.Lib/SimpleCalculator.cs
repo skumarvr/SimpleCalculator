@@ -5,11 +5,20 @@ namespace CalculatorTest.Lib
 {
     public class SimpleCalculator : ISimpleCalculator
     {
+        private IDiagnostics _diagnostics = null;
+
+        public SimpleCalculator(IDiagnostics diagnostics)
+        {
+            _diagnostics = diagnostics;
+        }
+
         public int Add(int start, int amount)
         {
             try
             {
-                return checked(start + amount);
+                int result = checked(start + amount);
+                _diagnostics.LogResult(CalculatorOperationText.Add, result);
+                return result;
             }
             catch (OverflowException ex)
             {
@@ -21,7 +30,9 @@ namespace CalculatorTest.Lib
         {
             try
             {
-                return checked(start - amount);
+                int result = checked(start - amount);
+                _diagnostics.LogResult(CalculatorOperationText.Subtract, result);
+                return result;
             }
             catch (OverflowException ex)
             {
@@ -33,7 +44,9 @@ namespace CalculatorTest.Lib
         {
             try
             {
-                return checked(start * by);
+                int result = checked(start * by);
+                _diagnostics.LogResult(CalculatorOperationText.Multiply, result);
+                return result;
             }
             catch (OverflowException ex)
             {
@@ -49,7 +62,10 @@ namespace CalculatorTest.Lib
                 {
                     throw new CalculatorException(ExceptionErrorText.DivideByZeroException);
                 }
-                return start / by;
+
+                int result = start / by;
+                _diagnostics.LogResult(CalculatorOperationText.Divide, result);
+                return result;
             }
             catch (OverflowException ex)
             {
