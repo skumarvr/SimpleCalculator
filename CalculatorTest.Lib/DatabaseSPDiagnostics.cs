@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CalculatorTest.ADONETDataAccess;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,7 +9,14 @@ namespace CalculatorTest.Lib
     {
         public void LogResult(string op, int result)
         {
-            Console.WriteLine($"{op} : {result}");
+            using (var context = new CalculatorDBContext())
+            {
+                context.AddDiagnostic(new ADONETDataAccess.Models.Diagnostic
+                {
+                    Operation = op,
+                    Result = result
+                });
+            }
         }
     }
 }

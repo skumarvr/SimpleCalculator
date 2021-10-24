@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CalculatorTest.ADONETDataAccess\CalculatorTest.ADONETDataAccess.csproj" />
     <ProjectReference Include="..\CalculatorTest.EFDataAccess\CalculatorTest.EFDataAccess.csproj" />
   </ItemGroup>
 

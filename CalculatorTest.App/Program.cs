@@ -14,8 +14,8 @@ namespace CalculatorTest.App
             var collection = new ServiceCollection();
             //collection.AddSingleton<IDiagnostics, DummyDiagnostics>();
             //collection.AddSingleton<IDiagnostics, ConsoleDiagnostics>();
-            collection.AddSingleton<IDiagnostics, DatabaseEFDiagnostics>();
-            //collection.AddSingleton<IDiagnostics, DatabaseSPDiagnostics>();
+            //collection.AddSingleton<IDiagnostics, DatabaseEFDiagnostics>();
+            collection.AddSingleton<IDiagnostics, DatabaseSPDiagnostics>();
             collection.AddScoped<ISimpleCalculator, SimpleCalculator>();
 
             IServiceProvider serviceProvider = collection.BuildServiceProvider();
