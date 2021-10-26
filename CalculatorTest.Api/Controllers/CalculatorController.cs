@@ -9,13 +9,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CalculatorTest.Api.Controllers
 {
+    [CustomExceptionFilterAttribute]
     [Route("api/[controller]")]
     [ApiController]
-    public class DiagnosticsController : ControllerBase
+    public class CalculatorController : ControllerBase
     {
         ISimpleCalculator _simpleCalculator;
 
-        public DiagnosticsController(ISimpleCalculator simpleCalculator)
+        public CalculatorController(ISimpleCalculator simpleCalculator)
         {
             _simpleCalculator = simpleCalculator;
         }

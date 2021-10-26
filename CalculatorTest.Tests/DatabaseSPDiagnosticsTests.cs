@@ -1,6 +1,8 @@
+using CalculatorTest.DataAccess;
 using CalculatorTest.DataAccess.Models;
 using CalculatorTest.Lib;
 using CalculatorTest.Lib.Constants;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
@@ -12,18 +14,16 @@ namespace Calculator.Tests
     public class DatabaseSPDiagnosticsTests
     {
         [Test]
-        public void LogResult_saves_Diagnostic_using_CalculatorDBContext()
+        public void LogResult_saves_Diagnostic_using_CalculatorDBHandler()
         {
-            var mockSet = new Mock<DbSet<Diagnostic>>();
+            var mockDbHandler = new Mock<IDbHandler>();
+            mockDbHandler.Setup(m => m.ExecuteNonQuery(It.IsAny<string>(), It.IsAny<SqlParameter[]>()))
+                        .Returns(1);
 
-            var mockContext = new Mock<CalculatorDBContext>(new DbContextOptions<CalculatorDBContext>());
-            mockContext.Setup(m => m.Diagnostics).Returns(mockSet.Object);
-
-            var service = new DatabaseEFDiagnostics(mockContext.Object);
+            var service = new DatabaseSPDiagnostics(mockDbHandler.Object);
             service.LogResult("Test", 100);
 
-            mockSet.Verify(m => m.Add(It.IsAny<Diagnostic>()), Times.Once());
-            mockContext.Verify(m => m.SaveChanges(), Times.Once());
+            mockDbHandler.Verify(m => m.ExecuteNonQuery(It.IsAny<string>(), It.IsAny<SqlParameter[]>()), Times.Once());
         }
     }
 }

@@ -1,14 +1,16 @@
-﻿using CalculatorTest.DataAccess.Models;
+﻿using CalculatorTest.DataAccess;
+using CalculatorTest.DataAccess.Models;
 using CalculatorTest.Lib.Constants;
+using Microsoft.Data.SqlClient;
 using System;
 
 namespace CalculatorTest.Lib
 {
     public class DatabaseSPDiagnostics : IDiagnostics
     {
-        CalculatorDBHandler _dbHandler;
+        IDbHandler _dbHandler;
 
-        public DatabaseSPDiagnostics(CalculatorDBHandler dbHandler)
+        public DatabaseSPDiagnostics(IDbHandler dbHandler)
         {
             _dbHandler = dbHandler;
         }
@@ -17,11 +19,13 @@ namespace CalculatorTest.Lib
         {
             try
             {
-                _dbHandler.AddDiagnostic(new Diagnostic
+                var spParams = new SqlParameter[]
                 {
-                    Operation = op,
-                    Result = result
-                });
+                    new SqlParameter("@operation", op),
+                    new SqlParameter("@result", result)
+                };
+
+                _dbHandler.ExecuteNonQuery("spAddDiagnostic", spParams);
             }
             catch (ArgumentNullException ex)
             {
